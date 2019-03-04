@@ -10,7 +10,7 @@ else
 fi
 cd "drive_c/Riot Games/League of Legends"
 
-wineserver -k
+wineserver -k || true
 wineserver -w
 WINEDEBUG=-all cgexec -g cpuset:league_client wine LeagueClient.exe
 
@@ -23,4 +23,4 @@ while [ "$uxpid" == "" ] || [ "$uxrpid" == "" ]; do
 	uxrpid="$(pidof "LeagueClientUxRender.exe" || true)"
 done
 echo "Client started..."
-bash $(dirname "$0")/client-cgroups.sh
+exec bash $(dirname "$0")/listen.sh $@
