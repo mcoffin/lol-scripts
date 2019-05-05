@@ -53,6 +53,30 @@ function ensure_cgroup() {
 }
 
 function cpu_usage() {
+		client_pid="$(pidof LeagueClient.exe)"
+		if [ -n "$client_pid" ] && [ -n "$(pidof 'League of Legends.exe')" ]; then
+			client_cpu=$(cpu_usage $client_pid)
+			if [ "$verbose_mode" == "true" ]; then
+				echo "client ($client_pid) cpu usage: $client_cpu"
+			fi
+			if [ $(echo "$client_cpu 80.0" | awk '{print ($1 > $2);}') -gt 0 ]; then
+				client_cpu_counter=$((client_cpu_counter + 1))
+				if [ "$verbose_mode" == "true" ]; then
+					echo "client cpu usage over threshold... $client_cpu_counter/$((60 / interval))"
+				fi
+				interval_threshold=$((60 / interval))
+				if [ $client_cpu_counter -ge $interval_threshold ]; then
+					if [ "$verbose_mode" == "true" ]; then
+						echo "killing client ($client_pid) due to high CPU usage: $client_cpu"
+					fi
+					kill $client_pid
+				fi
+			else
+				client_cpu_counter=0
+			fi
+		else
+			client_cpu_counter=0
+		fi
 	# proc_stats="$(sed -E "s/\\(.+\\)\s+//" < /proc/$1/stat)"
 	# proc_stats="$proc_stats $(awk '{print $1;}' < /proc/uptime)"
 	# proc_stats="$proc_stats $(getconf CLK_TCK)"
@@ -94,29 +118,31 @@ while true; do
 		fi
 		ensure_cgroup cpuset "${groups[$i]}" "${processes[$i]}"
 	done
-	client_pid="$(pidof LeagueClient.exe)"
-	if [ -n "$client_pid" ] && [ -n "$(pidof 'League of Legends.exe')" ]; then
-		client_cpu=$(cpu_usage $client_pid)
-		if [ "$verbose_mode" == "true" ]; then
-			echo "client ($client_pid) cpu usage: $client_cpu"
-		fi
-		if [ $(echo "$client_cpu 80.0" | awk '{print ($1 > $2);}') -gt 0 ]; then
-			client_cpu_counter=$((client_cpu_counter + 1))
+	if [ "$kill_mode" == "true" ]; then
+		client_pid="$(pidof LeagueClient.exe)"
+		if [ -n "$client_pid" ] && [ -n "$(pidof 'League of Legends.exe')" ]; then
+			client_cpu=$(cpu_usage $client_pid)
 			if [ "$verbose_mode" == "true" ]; then
-				echo "client cpu usage over threshold... $client_cpu_counter/$((60 / interval))"
+				echo "client ($client_pid) cpu usage: $client_cpu"
 			fi
-			interval_threshold=$((60 / interval))
-			if [ $client_cpu_counter -ge $interval_threshold ]; then
+			if [ $(echo "$client_cpu 80.0" | awk '{print ($1 > $2);}') -gt 0 ]; then
+				client_cpu_counter=$((client_cpu_counter + 1))
 				if [ "$verbose_mode" == "true" ]; then
-					echo "killing client ($client_pid) due to high CPU usage: $client_cpu"
+					echo "client cpu usage over threshold... $client_cpu_counter/$((60 / interval))"
 				fi
-				kill $client_pid
+				interval_threshold=$((60 / interval))
+				if [ $client_cpu_counter -ge $interval_threshold ]; then
+					if [ "$verbose_mode" == "true" ]; then
+						echo "killing client ($client_pid) due to high CPU usage: $client_cpu"
+					fi
+					kill $client_pid
+				fi
+			else
+				client_cpu_counter=0
 			fi
 		else
 			client_cpu_counter=0
 		fi
-	else
-		client_cpu_counter=0
 	fi
 	sleep $interval
 done

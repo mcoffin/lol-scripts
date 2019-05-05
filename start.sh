@@ -12,7 +12,9 @@ cd "drive_c/Riot Games/League of Legends"
 
 wineserver -k || true
 wineserver -w
-WINEDEBUG=-all cgexec -g cpuset:league_client wine LeagueClient.exe
+
+WINEDEBUG=${WINEDEBUG:--all}
+WINEDEBUG="$WINEDEBUG" cgexec -g cpuset:league_client wine LeagueClient.exe
 
 uxpid=""
 uxrpid=""
