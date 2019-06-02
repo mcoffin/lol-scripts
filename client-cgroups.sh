@@ -8,5 +8,5 @@ nonclient_processes=(
 for pname in "${nonclient_processes[@]}"; do
 	pid=$(pidof "$pname")
 	echo "$pname:$pid"
-	echo $pid >> cgroup.procs
+	pidof -S '\n' "$pname" >> cgroup.procs
 done
