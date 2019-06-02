@@ -14,7 +14,7 @@ wait_until_pid() {
 	done
 }
 
-WINEDEBUG=-all cgexec -g cpuset:league_client wine LeagueClient.exe
+WINEDEBUG=-all DXVK_FILTER_DEVICE_NAME=590 cgexec -g cpuset:league_client wine LeagueClient.exe
 pushd /sys/fs/cgroup/cpuset
 for pname in "${nonclient_processes[@]}"; do
 	wait_until_pid "$pname"
