@@ -1,9 +1,5 @@
 #!/bin/bash
 cd /sys/fs/cgroup/cpuset
-if [ "$1" != "" ]; then
-	sleeptime="$1"
-else
-	sleeptime=15
-fi
+sleeptime="${1:-15}"
 sleep $sleeptime
 pidof 'League of Legends.exe' >> league_game/cgroup.procs
