@@ -25,6 +25,6 @@ WINEPREFIX=/path/to/pfx ./league-client.sh # Runs the league client in the cgrou
 
 | Script | Usage | Example | Description |
 | ------ | ----- | ------- | ----------- |
-| `setup.sh` | `sudo ./setup.sh [unix_group] [client_cgroup] [game_cgroup]` | `sudo ./setup.sh games league_client league_game` | Sets up cgroups with the right permissions for the given group |
+| `setup.sh` | `sudo ./setup.sh [unix_group] [client_cgroup] [game_cgroup]` | `sudo ./setup.sh games league_client league_game` | Sets up cgroups with the right permissions for the given group. Replace the `[unix_group]` argument with your username to give your user access to the cgroups. This script must be run as a privileged user, but then the rest may be run as a regular user. |
 | `league-client.sh` | `./league-client.sh [client_cgroup]` | `WINEPREFIX=/path/to/pfx ./league-client.sh cpuset/league_client` | Launches the league of legends client in the restricted cgroup |
 | `game-cgroups.py` | `./game-cgroups.py [options]` | `./game-cgroups.py --delay 10 --client-cgroup cpuset/league_client --game-cgroup cpuset/league_game` | Monitors the client cgroup, and puts all processes that aren't the client into the game cgroup |
