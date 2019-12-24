@@ -17,7 +17,14 @@ If you're on an arch-based distro, this can be obtained from the [`libcgroup`](h
 
 ```bash
 sudo ./setup.sh # Creates cgroups, and sets permissions properly.
-./league-client.sh # Launches LeagueClient.exe properly. Re-run every time a game ends and the client re-opens, or it will run slowly
-# Once the game starts, alt-tab, and run
-./game-cgroups.sh 0 # Schedules the game tasks properly. The first argument is the amount of time to wait before running the task in seconds (default: 15)
+WINEPREFIX=/path/to/pfx ./league-client.sh # Runs the league client in the cgroups created by setup.sh
+./game-cgroups.py & # Runs in the background to re-schedule non-client processes to run on all cores
 ```
+
+# Scripts
+
+| Script | Usage | Example | Description |
+| ------ | ----- | ------- | ----------- |
+| `setup.sh` | `sudo ./setup.sh [unix_group] [client_cgroup] [game_cgroup]` | `sudo ./setup.sh games league_client league_game` | Sets up cgroups with the right permissions for the given group |
+| `league-client.sh` | `./league-client.sh [client_cgroup]` | `WINEPREFIX=/path/to/pfx ./league-client.sh cpuset/league_client` | Launches the league of legends client in the restricted cgroup |
+| `game-cgroups.py` | `./game-cgroups.py [options]` | `./game-cgroups.py --delay 10 --client-cgroup cpuset/league_client --game-cgroup cpuset/league_game` | Monitors the client cgroup, and puts all processes that aren't the client into the game cgroup |
